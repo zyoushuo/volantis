@@ -1,0 +1,61 @@
+<%- partial('_pre') %>
+<% 
+page.comments = false;
+if (!page.robots) {
+  page.robots = 'noindex,follow';
+}
+%>
+<%
+// 定义颜色数组
+var colorArr_categories = [  
+  '#ffd3d3', // 浅红色
+  '#c5d6ff', // 浅蓝色
+  '#5AE0C1', // 浅青绿色
+  '#7AE6FF', // 浅天蓝色
+  '#FFDF8E', // 浅黄色
+  '#FFC0F8', // 浅粉色
+  '#7FBCFF', // 浅蓝色
+  '#8A6BFF', // 浅紫色
+  '#FFC27D', // 浅橙色
+  '#5ADBFF', // 浅青色
+  '#4AC9A9', // 浅绿松石色
+  '#5AE2E3', // 浅蓝绿色
+  '#FFA9A9'  // 浅珊瑚色
+];
+%>
+
+<div id="l_main" class='<%- page.sidebar == false ? ' no_sidebar' : '' %>'>
+  <% if (site.posts && site.posts.length > 0) { %>
+    <% if ((page.layout == 'category')||(page.layout == 'categories') ) { %>
+      <div class='post-wrapper'>
+        <article id="cat" class="post article white-box reveal <%- theme.custom_css.body.effect.join(' ') %>">
+          <h2><%- page.title %></h2>
+          <div class="all-cats">
+            <% if (site.categories.length){ 
+              let colorIndex = 0;
+              %>
+              <% site.categories.sort('path').each(function(category){ %>
+                <a class="<%= category.parent ? ' child' : ''%>" href="<%= url_for(category.path) %>">
+                  <span>
+                  <!--<i class='fa-solid fa-folder-open fa-fw' aria-hidden="true"></i>&nbsp;&nbsp;<%= category.name %>-->
+                   <i class='fa-solid fa-folder-open fa-fw' aria-hidden="true" style="color: <%= colorArr_categories[colorIndex % colorArr_categories.length] %>;"></i>
+                    <%= category.name %>
+                  </span>
+                  <span class="title">
+                    (<%- category.posts.length %>)
+                  </span>
+                </a>
+                <% colorIndex++; %>
+              <% }) %>
+            <% } %>
+          </div>
+          <br>
+          <%- page.content %>
+        </article>
+      </div>
+    <% } else { %>
+      <%- partial('_partial/archive') %>
+    <% } %>
+  <% } %>
+</div>
+<%- partial('_partial/side') %>

@@ -1,0 +1,69 @@
+<% if (theme.site_footer) { %>
+  <%
+    var layout = theme.site_footer.layout;
+    if (config.theme_config && config.theme_config.footer && config.theme_config.footer.layout) {
+      layout = config.theme_config.footer.layout;
+    }
+    let theme_version = theme.info.theme_version
+    // // 未发布的 alpha 版本
+    // if (theme_version.indexOf("alpha")!=-1) {
+    //   theme_version = "dev"
+    // }
+    // // 从 5.7.2 以后的版本以 v开头（release-please的奇怪设定）
+    // else if (theme_version.indexOf("beta")==-1||theme_version.indexOf("rc")==-1) {
+    //   theme_version = "v" + theme_version
+    // }
+  %>
+  <footer class="footer clearfix"  itemscope itemtype="http://schema.org/WPFooter">
+    <br><br>
+    <% layout.forEach(function(item){ %>
+      <% if (item == 'social') { %>
+        <br>
+        <div class="social-wrapper" itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <% getList(theme.site_footer.social).forEach(function(value){ %>
+            <% if (value.url && (value.icon || value.img || value.avatar)) { %>
+              <a href="<%= url_for(value.url) %>"
+                class="social <%- value.icon %> flat-btn"
+                target="_blank"
+                rel="external nofollow noopener noreferrer" itemprop="url">
+                <% if (value.img) { %>
+                  <img src="<%- value.img %>"/>
+                <% } else if (value.avatar) { %>
+                  <img src="<%- value.avatar %>" style="border-radius:120px"/>
+                <% } %>
+              </a>
+            <% } %>
+          <% }) %>
+        </div>
+      <% } else if (item == 'aplayer') { %>
+        <div class="aplayer-container">
+          <%- partial('../_plugins/aplayer/layout', {post: null, where: 'footer'}) %>
+        </div>
+      <% } else if (item == 'copyright') { %>
+        <div class='copyright'>
+        <%- markdown(theme.site_footer.copyright) %>
+        </div>
+		<div>
+		 <span id="icp"></span>
+		 <a href="https://beian.miit.gov.cn/#/Integrated/index">豫ICP备20002107号-1</a>
+		</div>
+      <% } else if (item == 'info') { %>
+        <% if (theme.analytics.busuanzi) { %>
+		  <%- __('总访问量') %>
+          <span id="busuanzi_value_site_pv"><i class="fa-solid fa-loader fa-spin fa-fw" aria-hidden="true"></i></span>
+		  <%- __('footer.times') %>
+		  <%- __('| 本站访客数') %>
+		  <span id="busuanzi_value_site_uv"><i class="fa-solid fa-loader fa-spin fa-fw" aria-hidden="true"></i></span>
+          <%- __('人次') %>
+        <% } %>
+      <% } else { %>
+        <% if (item in theme.site_footer) { %>
+          <div><%- markdown(theme.site_footer[item]) %></div>
+        <% } %>
+      <% } %>
+    <% }) %>
+    <!-- Custom Files footer begin-->
+    <%- volantis_inject('footer') %>
+    <!-- Custom Files footer end-->
+  </footer>
+<% } %>

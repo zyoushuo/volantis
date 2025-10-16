@@ -1,0 +1,142 @@
+<%
+var nameMap = (config.language && config.language.indexOf('zh-CN') >= 0) ? 'cn' : 'en';
+var titleText = (config.language && config.language.indexOf('zh-CN') >= 0) ? '所有标签' : 'PostTag Title';
+
+var colorArr = ['#F9EBEA', '#F5EEF8', '#D5F5E3', '#E8F8F5', '#FEF9E7',
+    '#F8F9F9', '#82E0AA', '#D7BDE2', '#A3E4D7', '#85C1E9', '#F8C471', '#F9E79F', '#FFF'];
+var colorArr_categories = [  
+  '#ffd3d3', // 浅红色
+  '#c5d6ff', // 浅蓝色
+  '#5AE0C1', // 浅青绿色
+  '#7AE6FF', // 浅天蓝色
+  '#FFDF8E', // 浅黄色
+  '#FFC0F8', // 浅粉色
+  '#7FBCFF', // 浅蓝色
+  '#8A6BFF', // 浅紫色
+  '#FFC27D', // 浅橙色
+  '#5ADBFF', // 浅青色
+  '#4AC9A9', // 浅绿松石色
+  '#5AE2E3', // 浅蓝绿色
+  '#FFA9A9'  // 浅珊瑚色
+];
+var colorCount = colorArr.length;
+var hashCode = function (str) {
+    if (!str && str.length === 0) {
+        return 0;
+    }
+
+    var hash = 0;
+    for (var i = 0, len = str.length; i < len; i++) {
+        hash = ((hash << 5) - hash) + str.charCodeAt(i);
+        hash |= 0;
+    }
+    return hash;
+};
+var i = 0;
+var isTag = is_tag();
+%>
+<%- partial('_pre') %>
+<%
+page.comments = false;
+if (!page.robots) {
+  page.robots = 'noindex,follow';
+}
+%>
+
+<%- partial('_pre') %>
+<div id="l_main" class='<%- page.sidebar == false ? ' no_sidebar' : '' %>'>
+	<% if (page.year || page.month) { %>
+		<%- partial('_partial/archive') %>
+	<% } else { %>
+	  <div class='post-wrapper'>
+        <article id="cat" class="post article white-box reveal <%- theme.custom_css.body.effect.join(' ') %>">
+          <h2><%- page.title %></h2>
+          <div class="all-cats">
+            <% if (site.categories.length){let colorIndex = 0; %>
+              <% site.categories.sort('path').each(function(category){ %>
+                <a class="<%= category.parent ? ' child' : ''%>" href="<%= url_for(category.path) %>">
+                  <span><i class='fa-solid fa-folder-open fa-fw' aria-hidden="true" style="color: <%= colorArr_categories[colorIndex % colorArr_categories.length] %>;"></i>&nbsp;&nbsp;<%= category.name %></span>
+                  <span class="title">
+                    (<%- category.posts.length %>)
+                  </span>
+                </a>
+                <% colorIndex++; %>
+              <% }) %>
+            <% } %>
+          </div>
+          <br>
+          <%- page.content %>
+        </article>
+      </div>
+	  
+	  <div class='post-wrapper'>
+        <article id="tag" class="post article white-box reveal <%- theme.custom_css.body.effect.join(' ') %>">
+          <section class="archive">
+              <div class="archive-item archive-year mark">
+                <h2 class="tags">标签云</h2> 
+              </div>
+              <!-- 闪烁之狐标签云 -->
+              <div id="tags" class="container chip-container">
+                <div class="card">
+                    <div class="card-content">
+                        <div class="tag-title center-align">
+                        </div>
+                        <div class="tag-chips">
+                            <% site.tags.map(function(tag) { %>
+                            <%
+                                i++;
+                                var color = i >= colorCount ? colorArr[Math.abs(hashCode(tag.name) % colorCount)]
+                                        : colorArr[i - 1];
+                            %>
+                            <a href="<%- url_for(tag.path) %>" title="<%- tag.name %>: <%- tag.length %>">
+                                <span class="chip center-align waves-effect waves-light
+                                        <% if (isTag && tag.name == page.tag) { %> chip-active <% } else { %> chip-default <% } %>"
+                                        data-tagname="<%- tag.name %>" style="background-color: <%- color %>;"><%- tag.name %>
+                                    <span class="tag-length"><%- tag.length %></span>
+                                </span>
+                            </a>
+                            <% }); %>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            </section>
+        </article>
+      </div>
+
+	  <article id="arc" class="post article white-box reveal <%- theme.custom_css.body.effect.join(' ') %>">
+			<% var year = -1, postid = -1; %>
+			<% site.posts.sort('date', -1).each(function(post) { %>
+				<% post.year = date(post.date, 'YYYY'); %>
+				<% if (post.archive == undefined || post.archive == true) { %>
+					<% if (post.year && post.year !== year) { %>
+						<% year = post.year; %>
+						<h2><%= year %></h2>
+					<% } %>
+						<div class='timenode'>
+								<a class="meta" href="<%= url_for(post.link || post.path) %>">
+									<time><%= date(post.date, 'MM-DD') %></time>
+									<% if(post.title || post.seo_title){ %>
+                    <div class="archive_title">
+										<%- post.title || post.seo_title %>
+                    </div>
+									<% } else if (post.date) { %>
+										<%= date(post.date, config.date_format) %>
+									<% } %>
+									<% if(theme.plugins.aplayer && theme.plugins.aplayer.enable && post.music && post.music.enable != false){ %>
+										&nbsp;<i class="fa-solid fa-headphones-alt music" aria-hidden="true"></i>
+									<% } %>
+									<% if (post.icon) { %>
+										&nbsp;<i class="<%- post.icon %>" aria-hidden="true"></i>
+									<% } %>
+									<% getList(post.icons).forEach(function(icon){ %>
+										&nbsp;<i class="<%- icon %>" aria-hidden="true"></i>
+									<% }) %>
+								</a>
+						</div>
+				<% } %>
+			<% }); %>
+	  </article>
+	<% } %>
+</div>
+<%- partial('_partial/side') %>
